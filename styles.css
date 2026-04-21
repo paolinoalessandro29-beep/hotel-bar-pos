@@ -48,6 +48,8 @@
   --warning: #B45309;
   --gift: #15803D;
   --gift-soft: #DCF0E0;
+  --checkout: #B45309;
+  --checkout-soft: #FCEFD3;
 
   /* Radius & shadows */
   --r-sm: 10px;
@@ -880,6 +882,13 @@ ul { list-style: none; }
 .kpi-card.gift-card .kpi-label { color: var(--gift); }
 .kpi-card.gift-card .kpi-value { color: var(--gift); }
 
+.kpi-card.checkout-card {
+  background: linear-gradient(135deg, var(--checkout-soft) 0%, #FBE5C0 100%);
+  border-color: #E8C896;
+}
+.kpi-card.checkout-card .kpi-label { color: var(--checkout); }
+.kpi-card.checkout-card .kpi-value { color: var(--checkout); }
+
 .kpi-card.featured .kpi-label { color: rgba(255,255,255,0.7); }
 .kpi-card.featured .kpi-trend { color: #5EEAA0; }
 .kpi-card.featured .kpi-trend.down { color: #F8A39A; }
@@ -1193,6 +1202,7 @@ ul { list-style: none; }
 .tag.room { background: var(--accent-soft); color: var(--accent-dark); }
 .tag.payment { background: var(--surface-soft); color: var(--text-2); }
 .tag.gift { background: var(--gift-soft); color: var(--gift); }
+.tag.checkout { background: var(--checkout-soft); color: var(--checkout); }
 
 .recent-amt {
   font-family: var(--font-display);
@@ -1414,6 +1424,12 @@ ul { list-style: none; }
   background: var(--gift-soft);
   border-color: #C7E3B8;
   color: var(--gift);
+}
+
+.chip.checkout-chip {
+  background: var(--checkout-soft);
+  border-color: #E8C896;
+  color: var(--checkout);
 }
 
 .chip-x {

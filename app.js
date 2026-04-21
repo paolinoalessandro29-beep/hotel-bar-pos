@@ -38,6 +38,10 @@
   // "Omaggio" is special — orders paid with this method don't count as revenue
   const GIFT_PAYMENT = 'Omaggio';
 
+  // "Check Out" is a deferred payment — counts as revenue but tracked separately
+  // (l'ospite paga al check-out della camera)
+  const CHECKOUT_PAYMENT = 'Check Out';
+
   function buildDefaultRooms() {
     const ranges = [
       [101, 112], [113, 116], [118, 121],
@@ -87,6 +91,8 @@
         const s = JSON.parse(raw);
         // Migration: ensure Omaggio exists in payments
         if (!s.payments.includes(GIFT_PAYMENT)) s.payments.push(GIFT_PAYMENT);
+        // Migration: ensure Check Out exists in payments
+        if (!s.payments.includes(CHECKOUT_PAYMENT)) s.payments.push(CHECKOUT_PAYMENT);
         if (typeof s.nextOrderNum !== 'number') s.nextOrderNum = (s.transactions?.length || 0) + 1;
         return s;
       }
@@ -168,6 +174,7 @@
   }
 
   function isGift(tx) { return tx.payment === GIFT_PAYMENT; }
+  function isCheckout(tx) { return tx.payment === CHECKOUT_PAYMENT; }
 
   function txRevenue(tx) { return isGift(tx) ? 0 : tx.total; }
 
@@ -747,6 +754,8 @@
     const roomOrders = inRange.filter(t => t.room).length;
     const giftOrders = inRange.filter(isGift);
     const giftValue = giftOrders.reduce((s, t) => s + t.total, 0);
+    const checkoutOrders = inRange.filter(isCheckout);
+    const checkoutValue = checkoutOrders.reduce((s, t) => s + t.total, 0);
 
     const prevRevenue = prevInRange.reduce((s, t) => s + txRevenue(t), 0);
     const prevOrders = prevInRange.length;
@@ -797,6 +806,14 @@
         <div class="kpi-value">${fmt(avg)}</div>
         ${trendHTML(avg, prevAvg)}
       </div>
+      ${checkoutOrders.length > 0 ? `
+        <div class="kpi-card checkout-card">
+          <div class="kpi-label">In sospeso (Check Out)</div>
+          <div class="kpi-value">${fmt(checkoutValue)}</div>
+          <div class="kpi-trend neutral" style="color: var(--checkout, #b7791f)">${checkoutOrders.length} ${checkoutOrders.length === 1 ? 'ordine da incassare' : 'ordini da incassare'}</div>
+          <svg class="kpi-bg-ico"><use href="#i-clock"/></svg>
+        </div>
+      ` : ''}
       ${giftOrders.length > 0 ? `
         <div class="kpi-card gift-card">
           <div class="kpi-label">Omaggi</div>
@@ -804,13 +821,14 @@
           <div class="kpi-trend neutral" style="color: var(--gift)">${giftOrders.length} ${giftOrders.length === 1 ? 'ordine offerto' : 'ordini offerti'}</div>
           <svg class="kpi-bg-ico"><use href="#i-gift"/></svg>
         </div>
-      ` : `
+      ` : ''}
+      ${giftOrders.length === 0 && checkoutOrders.length === 0 ? `
         <div class="kpi-card">
           <div class="kpi-label">Camere addebitate</div>
           <div class="kpi-value">${roomOrders}</div>
           ${orders > 0 ? `<div class="kpi-trend neutral">${Math.round(roomOrders / orders * 100)}% degli ordini</div>` : ''}
         </div>
-      `}
+      ` : ''}
     `;
     $('#kpi-grid').innerHTML = kpiHTML;
 
@@ -950,14 +968,14 @@
     list.innerHTML = recent.map(t => {
       const items = t.items.map(i => `${i.qty}× ${i.name}`).join(', ');
       const gift = isGift(t);
+      const checkout = isCheckout(t);
+      const showPaymentTag = gift || checkout || !t.room;
       return `
         <div class="recent-row" data-id="${t.id}">
           <span class="recent-time">${fmtTime(t.date)}</span>
           <span class="recent-items">${escapeHtml(items)}</span>
-          ${t.room
-            ? `<span class="tag room">Cam. ${escapeHtml(t.room)}</span>`
-            : `<span class="tag ${gift ? 'gift' : 'payment'}">${escapeHtml(t.payment)}</span>`
-          }
+          ${t.room ? `<span class="tag room">Cam. ${escapeHtml(t.room)}</span>` : ''}
+          ${showPaymentTag ? `<span class="tag ${gift ? 'gift' : (checkout ? 'checkout' : 'payment')}">${escapeHtml(t.payment)}</span>` : ''}
           <span class="recent-amt ${gift ? 'gift-amt' : ''}">${gift ? 'Omaggio' : fmt(t.total)}</span>
         </div>
       `;
@@ -1041,12 +1059,15 @@
     // Payments
     $('#payments-count').textContent = state.payments.length;
     $('#payments-chips').innerHTML = state.payments.map(p => {
-      const special = p === GIFT_PAYMENT;
+      const isGiftMethod     = p === GIFT_PAYMENT;
+      const isCheckoutMethod = p === CHECKOUT_PAYMENT;
+      const protectedMethod  = isGiftMethod || isCheckoutMethod;
+      const iconRef          = isGiftMethod ? '#i-gift' : (isCheckoutMethod ? '#i-clock' : null);
       return `
-        <span class="chip ${special ? 'special-chip' : ''}">
-          ${special ? '<svg class="ico" style="width:12px;height:12px;"><use href="#i-gift"/></svg>' : ''}
+        <span class="chip ${isGiftMethod ? 'special-chip' : ''} ${isCheckoutMethod ? 'checkout-chip' : ''}">
+          ${iconRef ? `<svg class="ico" style="width:12px;height:12px;"><use href="${iconRef}"/></svg>` : ''}
           ${escapeHtml(p)}
-          ${special
+          ${protectedMethod
             ? ''
             : `<button class="chip-x" data-payment="${escapeHtml(p)}" aria-label="Rimuovi"><svg class="ico"><use href="#i-close"/></svg></button>`
           }
@@ -1056,7 +1077,7 @@
     $$('.chip-x[data-payment]', $('#payments-chips')).forEach(b => {
       b.addEventListener('click', () => {
         const name = b.dataset.payment;
-        if (name === GIFT_PAYMENT) return;
+        if (name === GIFT_PAYMENT || name === CHECKOUT_PAYMENT) return;
         state.payments = state.payments.filter(p => p !== name);
         saveState();
         renderSettings();
@@ -1409,6 +1430,7 @@
     if (Array.isArray(remote.payments)) {
       state.payments = remote.payments.slice();
       if (!state.payments.includes(GIFT_PAYMENT)) state.payments.push(GIFT_PAYMENT);
+      if (!state.payments.includes(CHECKOUT_PAYMENT)) state.payments.push(CHECKOUT_PAYMENT);
     }
     if (Array.isArray(remote.transactions)) state.transactions = remote.transactions;
     if (typeof remote.nextOrderNum === 'number') state.nextOrderNum = remote.nextOrderNum;
