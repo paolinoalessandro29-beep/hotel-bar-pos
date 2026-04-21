@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#1A1B1F" />
+<title>Bar — Hotel POS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- =============== SVG ICONS =============== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-pos" viewBox="0 0 24 24"><path d="M3 7h18l-2 11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L3 7z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></symbol>
+    <symbol id="i-trend-up" viewBox="0 0 24 24"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol>
+    <symbol id="i-trend-down" viewBox="0 0 24 24"><path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+    <symbol id="i-euro" viewBox="0 0 24 24"><path d="M16 8a4 4 0 1 0 0 8"/><path d="M3 11h7"/><path d="M3 14h7"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2 2 0 1 1 2.8 2.8L12 14.6 8 16l1.4-4z"/></symbol>
+    <symbol id="i-cart-empty" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M22 3H2l8 9.5V19l4 2v-8.5L22 3z"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">B</div>
+      <div class="brand-text">
+        <h1>Bar</h1>
+        <div class="sub">Hotel POS</div>
+      </div>
+    </div>
+
+    <div class="nav-section-title">Operativo</div>
+    <nav class="nav">
+      <button class="nav-item active" data-view="pos">
+        <svg class="ico"><use href="#i-pos"/></svg>
+        <span>Cassa</span>
+      </button>
+      <button class="nav-item" data-view="report">
+        <svg class="ico"><use href="#i-chart"/></svg>
+        <span>Report</span>
+      </button>
+      <button class="nav-item" data-view="history">
+        <svg class="ico"><use href="#i-clock"/></svg>
+        <span>Storico</span>
+      </button>
+    </nav>
+
+    <div class="nav-section-title">Configurazione</div>
+    <nav class="nav">
+      <button class="nav-item" data-view="items">
+        <svg class="ico"><use href="#i-grid"/></svg>
+        <span>Articoli</span>
+      </button>
+      <button class="nav-item" data-view="settings">
+        <svg class="ico"><use href="#i-settings"/></svg>
+        <span>Setup</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-block">
+        <div class="avatar">A</div>
+        <div class="user-info">
+          <div class="name">Bar Hotel</div>
+          <div class="role" id="session-role">Sessione attiva</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+
+    <header class="topbar">
+      <div class="topbar-title">
+        <h2 id="page-title">Cassa</h2>
+        <div class="crumbs" id="page-crumbs"></div>
+      </div>
+      <div class="topbar-right">
+        <div class="date-pill">
+          <span class="live-dot"></span>
+          <span id="session-label">Oggi</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============== POS VIEW ============== -->
+    <section class="view view-pos active" id="view-pos">
+
+      <div class="items-pane">
+        <div class="search-and-filter">
+          <div class="search-box">
+            <svg class="ico"><use href="#i-search"/></svg>
+            <input class="search-input" id="search-input" placeholder="Cerca articolo…" autocomplete="off" />
+          </div>
+          <div class="cat-tabs" id="cat-tabs"></div>
+        </div>
+
+        <div class="items-grid" id="items-grid"></div>
+      </div>
+
+      <!-- Desktop cart -->
+      <aside class="cart-panel" id="cart-panel">
+        <div class="cart-head">
+          <div>
+            <h3>Ordine</h3>
+            <div class="order-num" id="order-num">#—</div>
+          </div>
+          <button class="clear-link" id="clear-cart-btn">Svuota</button>
+        </div>
+
+        <div class="cart-body" id="cart-body">
+          <div class="cart-empty">
+            <svg class="ico"><use href="#i-cart-empty"/></svg>
+            <p>Nessun articolo</p>
+            <p class="small">Seleziona dal menu per iniziare</p>
+          </div>
+        </div>
+
+        <div class="cart-foot">
+          <div class="totals-block">
+            <div class="subtotal-row">
+              <span id="subtotal-label">Subtotale</span>
+              <span id="subtotal-value">€ 0,00</span>
+            </div>
+            <div class="total-row">
+              <span class="label">Totale</span>
+              <span class="amount" id="total-value">€ 0,00</span>
+            </div>
+          </div>
+          <button class="btn-checkout" id="checkout-btn" disabled>
+            Conferma ordine
+            <svg class="ico"><use href="#i-arrow-right"/></svg>
+          </button>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ============== REPORT VIEW ============== -->
+    <section class="view view-report" id="view-report">
+
+      <div class="report-header">
+        <div class="report-title">
+          <h2>Report</h2>
+          <p id="report-period-label">Riepilogo attività</p>
+        </div>
+        <div class="report-controls">
+          <div class="date-selector" id="date-selector">
+            <button class="date-btn active" data-period="today">Oggi</button>
+            <button class="date-btn" data-period="yesterday">Ieri</button>
+            <button class="date-btn" data-period="7days">7 giorni</button>
+            <button class="date-btn" data-period="month">Mese</button>
+          </div>
+          <button class="btn-secondary" id="export-report-btn">
+            <svg class="ico"><use href="#i-download"/></svg>
+            Esporta CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="kpi-grid"></div>
+
+      <div class="report-grid">
+        <div class="report-card">
+          <div class="report-card-head">
+            <div>
+              <h3 id="chart-title">Andamento</h3>
+              <div class="meta" id="chart-subtitle">Distribuzione</div>
+            </div>
+            <div class="meta" id="chart-date"></div>
+          </div>
+          <div class="chart-area" id="chart-area"></div>
+        </div>
+
+        <div class="report-card">
+          <div class="report-card-head">
+            <div>
+              <h3>Articoli più venduti</h3>
+              <div class="meta">Top del periodo</div>
+            </div>
+          </div>
+          <div class="top-items-list" id="top-items-list"></div>
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <div class="report-card">
+          <div class="report-card-head">
+            <div>
+              <h3>Ultimi ordini</h3>
+              <div class="meta">Le transazioni recenti</div>
+            </div>
+            <button class="btn-secondary" id="goto-history-btn">Vedi tutti</button>
+          </div>
+          <div class="recent-list" id="recent-list"></div>
+        </div>
+
+        <div class="report-card">
+          <div class="report-card-head">
+            <div>
+              <h3>Metodi di pagamento</h3>
+              <div class="meta">Distribuzione incassi</div>
+            </div>
+          </div>
+          <div class="payment-list" id="payment-list"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============== HISTORY VIEW ============== -->
+    <section class="view view-history" id="view-history">
+
+      <div class="report-header">
+        <div class="report-title">
+          <h2>Storico Ordini</h2>
+          <p>Tutti gli ordini registrati. Tocca un ordine per vedere i dettagli o eliminarlo.</p>
+        </div>
+        <div class="report-controls">
+          <div class="history-filter-wrap">
+            <input class="search-input small" id="history-search" placeholder="Filtra per camera, metodo, articolo…" />
+          </div>
+          <button class="btn-secondary" id="export-history-btn">
+            <svg class="ico"><use href="#i-download"/></svg>
+            Esporta CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="history-list" id="history-list"></div>
+    </section>
+
+    <!-- ============== ITEMS VIEW ============== -->
+    <section class="view view-items" id="view-items">
+
+      <div class="report-header">
+        <div class="report-title">
+          <h2>Articoli</h2>
+          <p>Gestisci nome, prezzo e categoria di ogni voce del listino.</p>
+        </div>
+        <button class="btn-primary" id="add-item-btn">
+          <svg class="ico"><use href="#i-plus"/></svg>
+          Nuovo articolo
+        </button>
+      </div>
+
+      <div class="items-table-wrap">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Articolo</th>
+              <th>Categoria</th>
+              <th class="num">Prezzo</th>
+              <th class="act"></th>
+            </tr>
+          </thead>
+          <tbody id="items-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============== SETTINGS VIEW ============== -->
+    <section class="view view-settings" id="view-settings">
+
+      <div class="report-header">
+        <div class="report-title">
+          <h2>Impostazioni</h2>
+          <p>Camere, metodi di pagamento e backup dati.</p>
+        </div>
+      </div>
+
+      <div class="settings-grid">
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <h3>Camere</h3>
+            <span class="count-badge" id="rooms-count">0</span>
+          </div>
+          <p class="muted small">Numerazione camere disponibili nel checkout.</p>
+          <div class="chips chips-scroll" id="rooms-chips"></div>
+          <form class="inline-form" id="add-room-form">
+            <input type="text" id="new-room" placeholder="es. 247" />
+            <button class="btn-secondary" type="submit">
+              <svg class="ico"><use href="#i-plus"/></svg>
+              Aggiungi
+            </button>
+          </form>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <h3>Metodi di pagamento</h3>
+            <span class="count-badge" id="payments-count">0</span>
+          </div>
+          <p class="muted small">Metodi visibili al checkout. "Omaggio" non contribuisce agli incassi ma viene tracciato separatamente nel report.</p>
+          <div class="chips" id="payments-chips"></div>
+          <form class="inline-form" id="add-payment-form">
+            <input type="text" id="new-payment" placeholder="Nome metodo" />
+            <button class="btn-secondary" type="submit">
+              <svg class="ico"><use href="#i-plus"/></svg>
+              Aggiungi
+            </button>
+          </form>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-head">
+            <h3>Dati &amp; Backup</h3>
+          </div>
+          <p class="muted small">Esporta tutti i dati in un file JSON (articoli, camere, metodi, storico ordini). Importa lo stesso file su un altro dispositivo per sincronizzare.</p>
+          <div class="row-buttons">
+            <button class="btn-secondary" id="export-data-btn">
+              <svg class="ico"><use href="#i-download"/></svg>
+              Esporta backup
+            </button>
+            <label class="btn-secondary file-label">
+              <svg class="ico"><use href="#i-upload"/></svg>
+              Importa backup
+              <input type="file" id="import-data-input" accept="application/json" hidden />
+            </label>
+          </div>
+
+          <hr />
+
+          <p class="muted small">Operazioni distruttive — usare con cautela.</p>
+          <div class="row-buttons">
+            <button class="btn-danger" id="clear-history-btn">
+              <svg class="ico"><use href="#i-trash"/></svg>
+              Cancella storico
+            </button>
+            <button class="btn-danger" id="reset-all-btn">
+              <svg class="ico"><use href="#i-trash"/></svg>
+              Reset completo
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ==================== MOBILE CART BAR ==================== -->
+<button class="mobile-cart-bar" id="mobile-cart-bar">
+  <svg class="ico"><use href="#i-cart"/></svg>
+  <span class="mc-info">
+    <span class="mc-count"><span id="mc-count-num">0</span> articoli</span>
+    <span class="mc-total" id="mc-total">€ 0,00</span>
+  </span>
+  <span class="mc-cta">Vedi ordine →</span>
+</button>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Mobile cart sheet -->
+<div class="modal" id="mobile-cart-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card sheet">
+    <div class="modal-head">
+      <h3>Ordine corrente</h3>
+      <button class="icon-btn" data-close aria-label="Chiudi">
+        <svg class="ico"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="cart-body" id="mobile-cart-body"></div>
+    </div>
+    <div class="modal-foot">
+      <div class="checkout-total">
+        <span class="label">Totale</span>
+        <strong id="mobile-total">€ 0,00</strong>
+      </div>
+      <button class="btn-checkout" id="mobile-checkout-btn">
+        Conferma ordine
+        <svg class="ico"><use href="#i-arrow-right"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Item create/edit modal -->
+<div class="modal" id="item-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="item-modal-title">Nuovo articolo</h3>
+      <button class="icon-btn" data-close aria-label="Chiudi">
+        <svg class="ico"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <form class="modal-body form-stack" id="item-form">
+      <input type="hidden" id="item-id" />
+      <label>
+        <span>Nome</span>
+        <input type="text" id="item-name" required maxlength="60" autocomplete="off" />
+      </label>
+      <label>
+        <span>Prezzo (€)</span>
+        <input type="number" id="item-price" required min="0" step="0.10" inputmode="decimal" />
+      </label>
+      <label>
+        <span>Categoria</span>
+        <input type="text" id="item-category" list="category-list" placeholder="es. Caffetteria, Cocktail, Vini…" maxlength="40" autocomplete="off" />
+        <datalist id="category-list"></datalist>
+      </label>
+    </form>
+    <div class="modal-foot">
+      <button type="button" class="btn-ghost" data-close>Annulla</button>
+      <button type="button" class="btn-primary" id="item-save-btn">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout modal -->
+<div class="modal" id="checkout-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card large">
+    <div class="modal-head">
+      <h3>Conferma ordine</h3>
+      <button class="icon-btn" data-close aria-label="Chiudi">
+        <svg class="ico"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="checkout-summary" id="checkout-summary"></div>
+
+      <div class="field-block">
+        <label class="field-label">Camera <span class="opt">(opzionale)</span></label>
+        <div class="room-search-wrap">
+          <input type="text" id="room-search" placeholder="Cerca camera…" inputmode="numeric" autocomplete="off" />
+          <button class="btn-ghost small" id="no-room-btn" type="button">Nessuna camera</button>
+        </div>
+        <div class="rooms-grid" id="rooms-grid"></div>
+      </div>
+
+      <div class="field-block">
+        <label class="field-label">Metodo di pagamento</label>
+        <div class="payments-grid" id="payments-grid"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="checkout-total">
+        <span class="label" id="checkout-total-label">Totale</span>
+        <strong id="checkout-total-value">€ 0,00</strong>
+      </div>
+      <button class="btn-checkout" id="confirm-order-btn" disabled>
+        <svg class="ico"><use href="#i-check"/></svg>
+        <span id="confirm-order-label">Conferma e salva</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- History detail modal -->
+<div class="modal" id="history-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Dettaglio ordine</h3>
+      <button class="icon-btn" data-close aria-label="Chiudi">
+        <svg class="ico"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="history-detail-body"></div>
+    <div class="modal-foot">
+      <button class="btn-danger" id="delete-order-btn">
+        <svg class="ico"><use href="#i-trash"/></svg>
+        Elimina ordine
+      </button>
+      <button class="btn-ghost" data-close>Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="modal" id="confirm-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card small">
+    <div class="modal-head">
+      <h3 id="confirm-title">Conferma</h3>
+      <button class="icon-btn" data-close aria-label="Chiudi">
+        <svg class="ico"><use href="#i-close"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-message" class="confirm-text"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" data-close>Annulla</button>
+      <button class="btn-danger" id="confirm-yes-btn">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" hidden></div>
+
+<!-- Cloud sync (Supabase) — i primi due script sono opzionali:
+     se supabase-config.js non esiste o ha i valori placeholder,
+     l'app funziona comunque in modalità solo-locale. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js" onerror="console.info('[POSSync] supabase-config.js non trovato — modalità locale')"></script>
+<script src="supabase-sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

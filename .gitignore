@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+*.log
+
+# Backups (don't commit local backup files)
+bar-pos-backup-*.json
+backup-*.json
+
+# Cloud sync config — contiene la chiave del tuo progetto Supabase.
+# Il file .example resta nel repo come template.
+supabase-config.js
