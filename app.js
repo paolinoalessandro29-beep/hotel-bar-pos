@@ -414,8 +414,9 @@
       : `<div style="grid-column:1/-1; text-align:center; padding:20px; color:var(--text-3); font-size:13px;">Nessuna camera trovata</div>`;
     $$('.room-btn', $('#rooms-grid')).forEach(b => {
       b.addEventListener('click', () => {
-        ui.checkout.room = ui.checkout.room === b.dataset.room ? null : b.dataset.room;
+        ui.checkout.room = b.dataset.room;
         renderRoomsGrid($('#room-search').value);
+        updateConfirmBtn();
       });
     });
   }
@@ -449,18 +450,18 @@
   }
 
   function updateConfirmBtn() {
-    $('#confirm-order-btn').disabled = !ui.checkout.payment;
+    $('#confirm-order-btn').disabled = !ui.checkout.payment || !ui.checkout.room;
   }
 
   function confirmOrder() {
-    if (!ui.checkout.payment || !ui.cart.length) return;
+    if (!ui.checkout.payment || !ui.checkout.room || !ui.cart.length) return;
     const tx = {
       id: uid(),
       orderNum: state.nextOrderNum,
       date: new Date().toISOString(),
       items: ui.cart.map(l => ({ name: l.name, price: l.price, qty: l.qty })),
       total: cartTotal(),
-      room: ui.checkout.room || null,
+      room: ui.checkout.room,
       payment: ui.checkout.payment
     };
     state.transactions.unshift(tx);
@@ -1273,12 +1274,6 @@
     // Checkout
     $('#confirm-order-btn').addEventListener('click', confirmOrder);
     $('#room-search').addEventListener('input', e => renderRoomsGrid(e.target.value));
-    $('#no-room-btn').addEventListener('click', () => {
-      ui.checkout.room = null;
-      $('#room-search').value = '';
-      renderRoomsGrid('');
-      toast('Nessuna camera selezionata');
-    });
 
     // Items
     $('#add-item-btn').addEventListener('click', () => openItemModal(null));
