@@ -175,6 +175,16 @@
 
   function isGift(tx) { return tx.payment === GIFT_PAYMENT; }
   function isCheckout(tx) { return tx.payment === CHECKOUT_PAYMENT; }
+  function isInserted(tx) { return tx.inserted === true; }
+
+  function markOrderAsInserted(id) {
+    const t = state.transactions.find(x => x.id === id);
+    if (!t || t.inserted) return false;
+    t.inserted = true;
+    t.insertedAt = new Date().toISOString();
+    saveState();
+    return true;
+  }
 
   function txRevenue(tx) { return isGift(tx) ? 0 : tx.total; }
 
@@ -192,6 +202,7 @@
     checkout: { room: null, payment: null },
     historyDetailId: null,
     historyFilter: '',
+    historyInsertedFilter: 'todo', // 'all' | 'todo' | 'done'
     reportPeriod: 'today',
     confirmAction: null
   };
@@ -592,7 +603,22 @@
   function renderHistoryList() {
     const list = $('#history-list');
     const q = ui.historyFilter.trim().toLowerCase();
+
+    // Update "todo" count badge (uses ALL transactions, not filtered by search)
+    const todoCount = state.transactions.filter(t => !isInserted(t)).length;
+    const badge = $('#if-count-todo');
+    if (badge) badge.textContent = todoCount;
+
+    // Update active state of filter buttons
+    $$('.if-btn', $('#inserted-filters')).forEach(b => {
+      b.classList.toggle('active', b.dataset.filter === ui.historyInsertedFilter);
+    });
+
     const filtered = state.transactions.filter(t => {
+      // Inserted filter
+      if (ui.historyInsertedFilter === 'todo' && isInserted(t)) return false;
+      if (ui.historyInsertedFilter === 'done' && !isInserted(t)) return false;
+      // Text filter
       if (!q) return true;
       const hay = [
         t.room || '',
@@ -605,17 +631,24 @@
     });
 
     if (!filtered.length) {
-      list.innerHTML = `<div style="text-align:center; padding:60px 20px; color:var(--text-3); font-style:italic;">
-        ${state.transactions.length ? 'Nessun ordine corrisponde al filtro.' : 'Nessun ordine ancora registrato.'}
-      </div>`;
+      const emptyMsg = !state.transactions.length
+        ? 'Nessun ordine ancora registrato.'
+        : ui.historyInsertedFilter === 'todo'
+          ? '🎉 Tutti gli ordini sono stati inseriti in Smart Order!'
+          : ui.historyInsertedFilter === 'done'
+            ? 'Nessun ordine ancora inserito in Smart Order.'
+            : 'Nessun ordine corrisponde al filtro.';
+      list.innerHTML = `<div style="text-align:center; padding:60px 20px; color:var(--text-3); font-style:italic;">${emptyMsg}</div>`;
       return;
     }
 
     list.innerHTML = filtered.map(t => {
       const itemsLabel = t.items.map(i => `${i.qty}× ${i.name}`).join(', ');
       const gift = isGift(t);
+      const checkout = isCheckout(t);
+      const inserted = isInserted(t);
       return `
-        <div class="history-row" data-id="${t.id}">
+        <div class="history-row ${inserted ? 'inserted' : ''}" data-id="${t.id}">
           <div class="h-time">
             <div style="font-weight:700; color:var(--text); font-size:12px; margin-bottom:2px;">${fmtOrderNum(t.orderNum || 0)}</div>
             ${fmtDate(t.date)}
@@ -623,15 +656,34 @@
           <div class="h-items">${escapeHtml(itemsLabel)}</div>
           <div class="h-meta">
             ${t.room ? `<span class="tag room">Camera ${escapeHtml(t.room)}</span>` : ''}
-            <span class="tag ${gift ? 'gift' : 'payment'}">${escapeHtml(t.payment)}</span>
+            <span class="tag ${gift ? 'gift' : (checkout ? 'checkout' : 'payment')}">${escapeHtml(t.payment)}</span>
           </div>
           <div class="h-total ${gift ? 'gift-amt' : ''}">${gift ? 'Omaggio' : fmt(t.total)}</div>
+          <button class="insert-mark ${inserted ? 'done' : 'todo'}" data-mark-id="${t.id}" aria-label="${inserted ? 'Inserito' : 'Segna come inserito in Smart Order'}" ${inserted ? 'disabled' : ''}>
+            ${inserted ? `<svg class="ico"><use href="#i-check"/></svg>` : ''}
+          </button>
         </div>
       `;
     }).join('');
 
+    // Row click → open detail (but not if click was on the insert-mark button)
     $$('.history-row', list).forEach(row => {
-      row.addEventListener('click', () => openHistoryDetail(row.dataset.id));
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.insert-mark')) return;
+        openHistoryDetail(row.dataset.id);
+      });
+    });
+
+    // Insert-mark button → mark as inserted (only if not already)
+    $$('.insert-mark[data-mark-id]:not(.done)', list).forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (markOrderAsInserted(btn.dataset.markId)) {
+          renderHistoryList();
+          renderReport();
+          toast('Ordine segnato come inserito in Smart Order', 'success');
+        }
+      });
     });
   }
 
@@ -640,6 +692,7 @@
     if (!t) return;
     ui.historyDetailId = id;
     const gift = isGift(t);
+    const inserted = isInserted(t);
 
     const itemsHtml = t.items.map(i => `
       <div class="detail-item">
@@ -651,6 +704,7 @@
 
     $('#history-detail-body').innerHTML = `
       ${gift ? `<div class="gift-banner"><svg class="ico"><use href="#i-gift"/></svg>Questo ordine è stato offerto in omaggio</div>` : ''}
+      ${inserted ? `<div class="inserted-banner"><svg class="ico"><use href="#i-check"/></svg>Inserito in Smart Order il ${fmtDate(t.insertedAt)}</div>` : ''}
       <div class="detail-meta">
         <div>
           <div class="label">Ordine</div>
@@ -674,7 +728,26 @@
         <span class="label">${gift ? 'Valore offerto' : 'Totale'}</span>
         <strong>${fmt(t.total)}</strong>
       </div>
+      ${!inserted ? `
+        <button class="btn-primary mark-inserted-btn" id="mark-inserted-btn" type="button">
+          <svg class="ico"><use href="#i-check"/></svg>
+          Segna come inserito in Smart Order
+        </button>
+      ` : ''}
     `;
+
+    if (!inserted) {
+      const btn = $('#mark-inserted-btn');
+      if (btn) btn.addEventListener('click', () => {
+        if (markOrderAsInserted(id)) {
+          closeModal('#history-modal');
+          renderHistoryList();
+          renderReport();
+          toast('Ordine segnato come inserito in Smart Order', 'success');
+        }
+      });
+    }
+
     openModal('#history-modal');
   }
 
@@ -757,6 +830,10 @@
     const checkoutOrders = inRange.filter(isCheckout);
     const checkoutValue = checkoutOrders.reduce((s, t) => s + t.total, 0);
 
+    // Pending Smart Order entries — uses ALL transactions (not just inRange)
+    // because pending entries can be from any date
+    const todoOrders = state.transactions.filter(t => !isInserted(t));
+
     const prevRevenue = prevInRange.reduce((s, t) => s + txRevenue(t), 0);
     const prevOrders = prevInRange.length;
     const prevAvg = prevOrders ? prevRevenue / prevOrders : 0;
@@ -822,6 +899,14 @@
           <svg class="kpi-bg-ico"><use href="#i-gift"/></svg>
         </div>
       ` : ''}
+      ${todoOrders.length > 0 ? `
+        <div class="kpi-card todo-card" id="kpi-todo-card">
+          <div class="kpi-label">Da inserire in Smart Order</div>
+          <div class="kpi-value">${todoOrders.length}</div>
+          <div class="kpi-trend neutral" style="color: var(--accent-dark)">${todoOrders.length === 1 ? 'ordine in attesa' : 'ordini in attesa'}</div>
+          <svg class="kpi-bg-ico"><use href="#i-clock"/></svg>
+        </div>
+      ` : ''}
       ${giftOrders.length === 0 && checkoutOrders.length === 0 ? `
         <div class="kpi-card">
           <div class="kpi-label">Camere addebitate</div>
@@ -831,6 +916,16 @@
       ` : ''}
     `;
     $('#kpi-grid').innerHTML = kpiHTML;
+
+    // Make "Da inserire" KPI clickable — jump to Storico filtered on todo
+    const todoCard = $('#kpi-todo-card');
+    if (todoCard) {
+      todoCard.style.cursor = 'pointer';
+      todoCard.addEventListener('click', () => {
+        ui.historyInsertedFilter = 'todo';
+        setView('history');
+      });
+    }
 
     // Chart
     renderChart(inRange, range);
@@ -1139,11 +1234,12 @@
   function exportTransactionsCSV(transactions, filename) {
     if (!transactions.length) return toast('Nessun ordine da esportare', 'error');
 
-    const header = ['N. Ordine', 'Data', 'Camera', 'Metodo Pagamento', 'Omaggio', 'Articolo', 'Quantità', 'Prezzo Unitario', 'Totale Riga', 'Totale Ordine', 'Incasso (escluso omaggi)'];
+    const header = ['N. Ordine', 'Data', 'Camera', 'Metodo Pagamento', 'Omaggio', 'Articolo', 'Quantità', 'Prezzo Unitario', 'Totale Riga', 'Totale Ordine', 'Incasso (escluso omaggi)', 'Inserito Smart Order', 'Data Inserimento'];
     const rows = [header];
 
     transactions.forEach(t => {
       const gift = isGift(t);
+      const inserted = isInserted(t);
       t.items.forEach((it, idx) => {
         rows.push([
           fmtOrderNum(t.orderNum || 0),
@@ -1156,7 +1252,9 @@
           it.price.toFixed(2).replace('.', ','),
           (it.price * it.qty).toFixed(2).replace('.', ','),
           idx === 0 ? t.total.toFixed(2).replace('.', ',') : '',
-          idx === 0 ? (gift ? '0,00' : t.total.toFixed(2).replace('.', ',')) : ''
+          idx === 0 ? (gift ? '0,00' : t.total.toFixed(2).replace('.', ',')) : '',
+          idx === 0 ? (inserted ? 'Sì' : 'No') : '',
+          idx === 0 ? (inserted && t.insertedAt ? fmtDate(t.insertedAt) : '') : ''
         ]);
       });
     });
@@ -1164,10 +1262,13 @@
     // Summary row
     const revenue = transactions.reduce((s, t) => s + txRevenue(t), 0);
     const giftValue = transactions.filter(isGift).reduce((s, t) => s + t.total, 0);
+    const insertedCount = transactions.filter(isInserted).length;
     rows.push([]);
     rows.push(['TOTALE ORDINI', transactions.length]);
     rows.push(['INCASSO NETTO', '', '', '', '', '', '', '', '', '', revenue.toFixed(2).replace('.', ',')]);
     rows.push(['VALORE OMAGGI', '', '', '', '', '', '', '', '', '', giftValue.toFixed(2).replace('.', ',')]);
+    rows.push(['INSERITI IN SMART ORDER', insertedCount]);
+    rows.push(['DA INSERIRE', transactions.length - insertedCount]);
 
     const csv = rows.map(r => r.map(cell => {
       const s = cell == null ? '' : String(cell);
@@ -1305,6 +1406,12 @@
     $('#history-search').addEventListener('input', e => {
       ui.historyFilter = e.target.value;
       renderHistoryList();
+    });
+    $$('.if-btn', $('#inserted-filters')).forEach(b => {
+      b.addEventListener('click', () => {
+        ui.historyInsertedFilter = b.dataset.filter;
+        renderHistoryList();
+      });
     });
     $('#delete-order-btn').addEventListener('click', deleteCurrentOrder);
     $('#export-history-btn').addEventListener('click', exportHistoryCSV);

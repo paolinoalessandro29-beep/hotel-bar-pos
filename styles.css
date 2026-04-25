@@ -889,6 +889,18 @@ ul { list-style: none; }
 .kpi-card.checkout-card .kpi-label { color: var(--checkout); }
 .kpi-card.checkout-card .kpi-value { color: var(--checkout); }
 
+.kpi-card.todo-card {
+  background: linear-gradient(135deg, var(--accent-soft) 0%, #FBE0CC 100%);
+  border-color: #EFC2A2;
+  transition: all 0.15s;
+}
+.kpi-card.todo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-md);
+}
+.kpi-card.todo-card .kpi-label { color: var(--accent-dark); }
+.kpi-card.todo-card .kpi-value { color: var(--accent-dark); }
+
 .kpi-card.featured .kpi-label { color: rgba(255,255,255,0.7); }
 .kpi-card.featured .kpi-trend { color: #5EEAA0; }
 .kpi-card.featured .kpi-trend.down { color: #F8A39A; }
@@ -1234,7 +1246,7 @@ ul { list-style: none; }
   border-radius: var(--r-md);
   padding: 14px 18px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   gap: 14px;
   align-items: center;
   cursor: pointer;
@@ -1242,6 +1254,13 @@ ul { list-style: none; }
 }
 
 .history-row:hover { border-color: var(--border-strong); transform: translateX(2px); box-shadow: var(--sh-sm); }
+
+.history-row.inserted {
+  opacity: 0.55;
+  background: var(--surface-soft);
+}
+
+.history-row.inserted:hover { opacity: 0.85; }
 
 .history-row .h-time {
   font-variant-numeric: tabular-nums;
@@ -1275,6 +1294,114 @@ ul { list-style: none; }
 }
 
 .history-row .h-total.gift-amt { color: var(--gift); }
+
+/* Insert-mark checkmark column in history row */
+.insert-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.insert-mark.todo:hover {
+  border-color: var(--ok);
+  background: var(--ok-soft);
+  transform: scale(1.08);
+}
+
+.insert-mark.done {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: white;
+  cursor: default;
+}
+
+.insert-mark.done .ico {
+  width: 16px;
+  height: 16px;
+  stroke: white;
+  stroke-width: 3;
+}
+
+.insert-mark:disabled { cursor: default; }
+
+/* Filter buttons (Tutti / Da inserire / Inseriti) */
+.inserted-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.if-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.if-btn:hover { border-color: var(--border-strong); }
+
+.if-btn.active {
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+}
+
+.if-count {
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 22px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.if-btn.active .if-count {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Inserted banner in detail modal */
+.inserted-banner {
+  background: var(--ok-soft);
+  color: var(--ok);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.inserted-banner .ico { width: 16px; height: 16px; stroke-width: 2.5; }
+
+/* "Segna come inserito" button in detail modal */
+.mark-inserted-btn {
+  width: 100%;
+  margin-top: 16px;
+  justify-content: center;
+}
 
 /* ============================================================
    ITEMS TABLE
@@ -1944,14 +2071,15 @@ hr {
   .bar-wrap { height: 140px; }
 
   .history-row {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     gap: 8px;
     padding: 12px 14px;
   }
   .history-row .h-time { grid-column: 1; min-width: auto; font-size: 12px; }
   .history-row .h-total { grid-column: 2; grid-row: 1; font-size: 16px; }
-  .history-row .h-items { grid-column: 1 / -1; font-size: 13px; }
-  .history-row .h-meta { grid-column: 1 / -1; }
+  .history-row .insert-mark { grid-column: 3; grid-row: 1 / span 3; align-self: center; }
+  .history-row .h-items { grid-column: 1 / 3; font-size: 13px; }
+  .history-row .h-meta { grid-column: 1 / 3; }
 
   .recent-row {
     grid-template-columns: 1fr auto;
